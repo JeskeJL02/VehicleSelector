@@ -22,7 +22,7 @@ namespace VehicleSelector.Api.Controllers
             _vehicleModelRepository = new VehicleModelRepository(context);
         }
 
-        // GET api/vehicles/GetAllMakes
+        // GET api/vehicles/getallmakes
         [HttpGet("GetAllMakes")]
         public async Task<IEnumerable<VehicleMake>> GetAllMakes()
         {
@@ -43,7 +43,7 @@ namespace VehicleSelector.Api.Controllers
             return await _vehicleMakeRepository.GetMakeAndModelsAsync(id);
         }
 
-        // GET api/vehicles/searchmakes/{id:int}/{input}
+        // GET api/vehicles/searchmodels/{id:int}/{input}
         [HttpGet("SearchModels/{id:int}/{input}")]
         public async Task<IEnumerable<VehicleModel>> SearchModels(int id, string input)
         {
