@@ -30,9 +30,20 @@ namespace VehicleSelector.Api
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(
+                    options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                );
 
-            services.AddDbContext<VehicleContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AzureDatabase")));
+            services.AddDbContext<VehicleContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Database")));
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,7 +51,7 @@ namespace VehicleSelector.Api
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-
+            app.UseCors("CorsPolicy");
             app.UseMvc();
         }
     }

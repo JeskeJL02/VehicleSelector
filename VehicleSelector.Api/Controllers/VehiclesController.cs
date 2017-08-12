@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using VehicleSelector.Respositories;
 using VehicleSelector.Data.Models;
-
+using Microsoft.AspNetCore.Cors;
 
 namespace VehicleSelector.Api.Controllers
 {
+    [EnableCors("CorsPolicy")]
     [Route("api/[controller]")]
     public class VehiclesController : Controller
     {
@@ -21,48 +22,32 @@ namespace VehicleSelector.Api.Controllers
             _vehicleModelRepository = new VehicleModelRepository(context);
         }
 
-        // GET api/vehicles/searchmakes/{input}
-        [HttpGet("SearchMakes/{input}")]
-        public async Task<IEnumerable<VehicleMake>> SearchMakes(string input)
-        {
-            return await _vehicleMakeRepository.FindAsync(x => x.VehicleMakeName.Contains(input));
-        }
-
+        // GET api/vehicles/GetAllMakes
         [HttpGet("GetAllMakes")]
         public async Task<IEnumerable<VehicleMake>> GetAllMakes()
         {
             return await _vehicleMakeRepository.GetAllAsync();
         }
 
-        // GET api/values/5
-        [HttpGet("GetMake/{id}")]
+        // GET api/vehicles/searchmakes/{input}
+        [HttpGet("SearchMakes/{input}")]
+        public async Task<IEnumerable<VehicleMake>> SearchMakes(string input)
+        {
+            return await _vehicleMakeRepository.FindAsync(x => x.VehicleMakeName.StartsWith(input));
+        }
+
+        // GET api/vehicles/getmake/{id:int}
+        [HttpGet("GetMake/{id:int}")]
         public async Task<VehicleMake> GetMake(int id)
         {
-            return await _vehicleMakeRepository.GetAsync(id);
+            return await _vehicleMakeRepository.GetMakeAndModelsAsync(id);
         }
 
-        [HttpGet("SearchModels/{id}/{input}")]
-        public async Task<IEnumerable<VehicleModel>> GetModels(int id, string input)
+        // GET api/vehicles/searchmakes/{id:int}/{input}
+        [HttpGet("SearchModels/{id:int}/{input}")]
+        public async Task<IEnumerable<VehicleModel>> SearchModels(int id, string input)
         {
-            return await _vehicleModelRepository.FindAsync(x => x.VehicleMakeId == id && x.VehicleModelName.Contains(input));
-        }
-
-        // POST api/values
-        [HttpPost("")]
-        public void Post([FromBody]string value)
-        {
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return await _vehicleModelRepository.FindAsync(x => x.VehicleMakeId == id && x.VehicleModelName.StartsWith(input));
         }
     }
 }
