@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Vehicle Selector</title>
+    <!-- Css library files -->
+    <link href="lib/bootstrap-css-only/css/bootstrap.css" rel="stylesheet" />
+    <link href="lib/bootstrap-css-only/css/bootstrap-theme.css" rel="stylesheet" />
+    <link href="lib/angular-bootstrap/ui-bootstrap-csp.css" rel="stylesheet" />
+    
+</head>
+<body ng-app="vehicleSelectorApp" ng-cloak>
+
+    <nav ng-controller="navController">
+
+    </nav>
+    <div ng-controller="notificationsController">
+
+    </div>
+
+    <ng-view></ng-view>
+    <!-- JS library files -->
+    <script src="lib/angular/angular.js"></script>
+    <script src="lib/angular-route/angular-route.js"></script>
+    <script src="lib/angular-animate/angular-animate.js"></script>
+    <script src="lib/angular-bootstrap/ui-bootstrap.js"></script>
+    <script src="lib/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <!-- JS app files -->
+    <script src="app/vehicleSelectorApp.js"></script>
+    <script src="app/services/dataService.js"></script>
+    <script src="app/services/vehicleService.js"></script>
+    <script src="app/controllers/navController.js"></script>
+    <script src="app/controllers/notificationsController.js"></script>
+    <script src="app/controllers/vehicleSelectorController.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="wwwroot\lib\bootstrap\**" />
+    <Content Remove="wwwroot\lib\bootstrap\**" />
+    <EmbeddedResource Remove="wwwroot\lib\bootstrap\**" />
+    <None Remove="wwwroot\lib\bootstrap\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="wwwroot\app\controllers\navController.js" />
+    <Content Include="wwwroot\app\controllers\notificationsController.js" />
+    <Content Include="wwwroot\app\controllers\vehicleSelectorController.js" />
+    <Content Include="wwwroot\app\services\dataService.js" />
+    <Content Include="wwwroot\app\services\vehicleService.js" />
+    <Content Include="wwwroot\app\vehicleSelectorApp.js" />
+    <Content Include="wwwroot\app\views\selector.html" />
+    <Content Include="wwwroot\Index.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AngularJS.Core" Version="1.6.5" />
+    <PackageReference Include="AngularJS.Route" Version="1.6.5" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="1.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="1.1.2" />
+  </ItemGroup>
+
+</Project>
