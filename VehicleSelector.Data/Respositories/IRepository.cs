@@ -23,6 +23,8 @@ namespace VehicleSelector.Respositories
 
         void Remove(TEntity entity);
         void RemoveRange(IEnumerable<TEntity> entities);
+
+        Task<int> SaveChangesAsync();
     }
 
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
@@ -92,6 +94,11 @@ namespace VehicleSelector.Respositories
         public void RemoveRange(IEnumerable<TEntity> entities)
         {
             _context.Set<TEntity>().RemoveRange(entities);
+        }
+
+        public async Task<int> SaveChangesAsync()
+        {
+            return await _context.SaveChangesAsync();
         }
     }
 }
