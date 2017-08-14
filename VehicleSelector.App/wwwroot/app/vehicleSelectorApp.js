@@ -49,10 +49,11 @@
                     }
                 });
             }
-
         ])
         .factory('config', function () {
             return {
+                //In a professional setting this would be pulling from a config file server side.
+                //But for the sake of simplicity and time I am setting the absolute path here.
                 apiBaseUrl: 'http://vehicleselectorapi.azurewebsites.net/api'
             }
         });

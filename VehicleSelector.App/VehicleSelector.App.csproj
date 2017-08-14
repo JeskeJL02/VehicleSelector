@@ -13,15 +13,16 @@
 
   <ItemGroup>
     <Content Include="wwwroot\app\controllers\homeController.js" />
+    <Content Include="wwwroot\app\controllers\modalController.js" />
     <Content Include="wwwroot\app\controllers\navController.js" />
-    <Content Include="wwwroot\app\controllers\notificationsController.js" />
     <Content Include="wwwroot\app\controllers\vehicleSelectorController.js" />
     <Content Include="wwwroot\app\services\dataService.js" />
     <Content Include="wwwroot\app\services\vehicleService.js" />
     <Content Include="wwwroot\app\vehicleSelectorApp.js" />
     <Content Include="wwwroot\app\views\home\home.html" />
-    <Content Include="wwwroot\app\views\selector.html" />
     <Content Include="wwwroot\app\views\vehicleSelector\selector.html" />
+    <Content Include="wwwroot\css\vehicleSelectorMain.css" />
+    <Content Include="wwwroot\images\favicon.png" />
     <Content Include="wwwroot\Index.html" />
   </ItemGroup>
   <ItemGroup>

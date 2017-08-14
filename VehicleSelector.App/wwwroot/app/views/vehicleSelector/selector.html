@@ -1,22 +1,66 @@
-﻿
-    <ol class="breadcrumb">
-        <li ng-repeat="selection in Selections" ng-class="{'active': $index == (Selections.length - 1)}">
-            <a ng-if="$index != (Selections.length - 1)" href="javascript:void(0)" ng-click="SelectionSet(selection.type)">{{selection.name}}</a>
-            <span ng-if="$index == (Selections.length - 1)">{{selection.name}}</span>
-        </li>
-    </ol>
+﻿<!-- selector.html -->
+<div id="alert-container">
+    <div uib-alert ng-repeat="alert in Alerts" class="alert-msg" ng-class="'alert-' + (alert.type || 'warning')" close="closeAlert($index)" dismiss-on-timeout="5000">
+        {{alert.msg}}
+    </div>
+</div>
+
+<ol class="breadcrumb">
+    <li ng-repeat="selection in Selections" ng-class="{'active': $index == (Selections.length - 1)}">
+        <a ng-if="$index != (Selections.length - 1)" href="javascript:void(0)" ng-click="SelectionSet(selection.type)">{{selection.name}}</a>
+        <span ng-if="$index == (Selections.length - 1)">{{selection.name}}</span>
+    </li>
+</ol>
 
 <div class="input-group">
+    <button type="button" class="btn btn-default form-control visibilityButton" ng-click="SetListVisiblity()">{{ListVisibility}}</button>
     <span class="input-group-addon" id="basic-addon3">Search For {{CurrentlySearchingFor}}</span>
     <input type="text" class="form-control" aria-describedby="basic-addon3" id="searchBox"
            ng-model="CurrentInput" ng-keyup="KeyUpEvent($event)"
-           uib-typeahead="item as item.name for item in SearchArray | filter:$viewValue | limitTo:10" 
+           uib-typeahead="item as item.name for item in SearchArray | filter:$viewValue | limitTo:10"
            typeahead-on-select="SelectEvent()"
            typeahead-no-results="noResults">
     <span ng-if="noResults" class="input-group-addon">No Results: Enter To Add</span>
 </div>
+<hr />
+<div uib-collapse="CollapseList">
+    <div class="well well-lg listContainter">
+        <ul class="list-group" id="list-items">
+            <li class="list-group-item" ng-repeat="item in SearchArray">
+                {{item.name}}
+                <span class="glyphicon glyphicon-remove delete-btn" aria-hidden="true" ng-click="DeleteItem(item.id, item.name, $index)"></span>
+            </li>
+            <li class="list-group-item" ng-show="!SearchArray.length">No Vehicle {{CurrentlySearchingFor}}</li>
+        </ul>
+    </div>
+</div>
+<!-- TEMPLATES -->
+<script type="text/ng-template" id="addNewModal.html">
+    <div class="modal-header">
+        Add New
+    </div>
+    <div class="modal-body">
+        <p>
+            Are you sure you want to add "{{Input}}" to the list of {{Type}}?
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="Add()">Add</button>
+        <button class="btn btn-warning" ng-click="Cancel()">Cancel</button>
+    </div>
+</script>
 
-    
-    
-
-
+<script type="text/ng-template" id="deleteModal.html">
+    <div class="modal-header">
+        Delete
+    </div>
+    <div class="modal-body">
+        <p>
+            Are you sure you want to delete "{{Input}}" from {{Type}}?
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="Delete()">Delete</button>
+        <button class="btn btn-warning" ng-click="Cancel()">Cancel</button>
+    </div>
+</script>

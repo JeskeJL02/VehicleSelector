@@ -7,12 +7,32 @@
             var _get = function (url) {
                 return $http({
                     url: config.apiBaseUrl + url,
-                    type: 'GET'
+                    method: 'GET'
+                });
+            };
+
+            var _post = function (url, data) {
+                return $http({
+                    url: config.apiBaseUrl + url,
+                    method: 'POST',
+                    data: data,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+            };
+
+            var _delete = function (url) {
+                return $http({
+                    url: config.apiBaseUrl + url,
+                    method: 'DELETE'
                 });
             };
 
             return {
-                get: _get
+                get: _get,
+                post: _post,
+                delete: _delete
             };
         }
     ]);
