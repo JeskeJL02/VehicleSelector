@@ -26,6 +26,10 @@
     right: 15px;
 }
 
+.item-select {
+    cursor:pointer;
+}
+
 /*   Animations   */
 /* now the element will fade out before it is removed from the DOM */
 .fade.ng-leave {

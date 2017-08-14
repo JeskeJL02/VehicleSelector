@@ -246,6 +246,19 @@
             _selectionSet(type, false);
         };
 
+        $scope.SelectItem = function (id, name) {
+            var type = _translateCurrentlySearchingForToType();
+            switch (type) {
+                case 'make': {
+                    _selectedVehicleMakeCache = { id: id, name: name };
+                }
+                case 'model': {
+                    _selectedVehicleModelCache = { id: id, name: name };
+                }
+            }
+            _selectionSet(type, true);
+        };
+
         $scope.SetListVisiblity = function () {
             _setListVisiblity(!$scope.CollapseList);
         };

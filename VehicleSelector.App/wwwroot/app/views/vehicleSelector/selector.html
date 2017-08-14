@@ -27,7 +27,7 @@
     <div class="well well-lg listContainter">
         <ul class="list-group" id="list-items">
             <li class="list-group-item" ng-repeat="item in SearchArray">
-                {{item.name}}
+                <span class="item-select" ng-click="SelectItem(item.id, item.name)">{{item.name}}</span>
                 <span class="glyphicon glyphicon-remove delete-btn" aria-hidden="true" ng-click="DeleteItem(item.id, item.name, $index)"></span>
             </li>
             <li class="list-group-item" ng-show="!SearchArray.length">No Vehicle {{CurrentlySearchingFor}}</li>
