@@ -4,7 +4,7 @@
   "dependencies": {
     "angular": "v1.6.6-build.5451+sha.7c87628",
     "angular-route": "v1.6.6-build.5451+sha.7c87628",
-    "angular-bootstrap": "v1.1.0",
+    "angular-bootstrap": "v2.5.0",
     "angular-animate": "v1.6.6-build.5451+sha.7c87628",
     "bootstrap-css-only": "v3.3.7"
   }

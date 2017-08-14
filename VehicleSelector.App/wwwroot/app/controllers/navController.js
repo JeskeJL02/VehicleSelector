@@ -5,9 +5,11 @@
         .module('vehicleSelectorApp')
         .controller('navController', navController);
 
-    navController.$inject = ['$scope'];
+    navController.$inject = ['$scope', '$location'];
 
-    function navController($scope) {
-        
+    function navController($scope, $location) {
+        $scope.isActive = function (viewLocation) {
+            return viewLocation === $location.path();
+        };
     }
 })();

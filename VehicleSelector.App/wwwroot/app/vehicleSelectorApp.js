@@ -13,18 +13,25 @@
     ])
         .config([
             '$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
-                var _viewsRootPath = '/app/views/';
+                var _vehicleSelectorViewsRootPath = '/app/views/vehicleSelector/';
+                var _homeViewsRootPath = '/app/views/home/';
                 //removing the has prefix
                 $locationProvider.hashPrefix('');
 
-                $routeProvider.when('/select', {
+                $routeProvider.when('/selector', {
                     controller: 'vehicleSelectorController',
-                    templateUrl: _viewsRootPath + 'selector.html',
+                    templateUrl: _vehicleSelectorViewsRootPath + 'selector.html',
                     title: 'Vehicle Selector'
                 });
 
+                $routeProvider.when('/', {
+                    controller: 'homeController',
+                    templateUrl: _homeViewsRootPath + 'home.html',
+                    title: 'Home'
+                });
+
                 $routeProvider.otherwise({
-                    redirectTo: '/select'
+                    redirectTo: '/'
                 });
             }
         ])

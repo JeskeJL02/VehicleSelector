@@ -1,0 +1,22 @@
+﻿
+    <ol class="breadcrumb">
+        <li ng-repeat="selection in Selections" ng-class="{'active': $index == (Selections.length - 1)}">
+            <a ng-if="$index != (Selections.length - 1)" href="javascript:void(0)" ng-click="SelectionSet(selection.type)">{{selection.name}}</a>
+            <span ng-if="$index == (Selections.length - 1)">{{selection.name}}</span>
+        </li>
+    </ol>
+
+<div class="input-group">
+    <span class="input-group-addon" id="basic-addon3">Search For {{CurrentlySearchingFor}}</span>
+    <input type="text" class="form-control" aria-describedby="basic-addon3" id="searchBox"
+           ng-model="CurrentInput" ng-keyup="KeyUpEvent($event)"
+           uib-typeahead="item as item.name for item in SearchArray | filter:$viewValue | limitTo:10" 
+           typeahead-on-select="SelectEvent()"
+           typeahead-no-results="noResults">
+    <span ng-if="noResults" class="input-group-addon">No Results: Enter To Add</span>
+</div>
+
+    
+    
+
+

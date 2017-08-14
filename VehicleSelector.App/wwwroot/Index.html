@@ -9,16 +9,26 @@
     <link href="lib/angular-bootstrap/ui-bootstrap-csp.css" rel="stylesheet" />
     
 </head>
-<body ng-app="vehicleSelectorApp" ng-cloak>
+<body ng-app="vehicleSelectorApp" ng-cloak style="padding:65px;">
+    
+        <nav class="navbar navbar-default navbar-fixed-top" ng-controller="navController">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <div class="navbar-brand">Vehicle Selector</div>
 
-    <nav ng-controller="navController">
+                    <ul class="nav navbar-nav">
+                        <li ng-class="{ active: isActive('/')}"><a href="#/">Home</a></li>
+                        <li ng-class="{ active: isActive('/selector')}"><a href="#/selector">Selector</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div ng-controller="notificationsController">
 
-    </nav>
-    <div ng-controller="notificationsController">
-
-    </div>
-
-    <ng-view></ng-view>
+        </div>
+    
+        <ng-view></ng-view>
+    
     <!-- JS library files -->
     <script src="lib/angular/angular.js"></script>
     <script src="lib/angular-route/angular-route.js"></script>
@@ -31,6 +41,7 @@
     <script src="app/services/vehicleService.js"></script>
     <script src="app/controllers/navController.js"></script>
     <script src="app/controllers/notificationsController.js"></script>
+    <script src="app/controllers/homeController.js"></script>
     <script src="app/controllers/vehicleSelectorController.js"></script>
 </body>
 
