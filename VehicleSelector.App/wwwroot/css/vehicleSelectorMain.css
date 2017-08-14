@@ -27,7 +27,14 @@
 }
 
 .item-select {
-    cursor:pointer;
+    cursor: pointer;
+    color: blue;
+    
+}
+
+.item-select:hover {
+    text-decoration: none;
+    text-shadow: 1px 1px 1px #555;
 }
 
 /*   Animations   */
