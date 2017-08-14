@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using VehicleSelector.Data.Models;
@@ -28,6 +26,5 @@ namespace VehicleSelector.Respositories
         {
             return await _vehicleContext.Makes.Include(ma => ma.Models).SingleOrDefaultAsync(x => x.VehicleMakeId == vehicleMakeId);
         }
-        
     }
 }

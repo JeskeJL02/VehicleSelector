@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using VehicleSelector.Respositories;
 using VehicleSelector.Data.Models;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
 
 namespace VehicleSelector.Api.Controllers
 {
@@ -27,7 +26,8 @@ namespace VehicleSelector.Api.Controllers
         [HttpGet("GetAllMakes")]
         public async Task<IEnumerable<VehicleMake>> GetAllMakes()
         {
-            return await _vehicleMakeRepository.GetAllAsync();
+            IEnumerable<VehicleMake> allMakes = await _vehicleMakeRepository.GetAllAsync();
+            return allMakes.OrderBy(x => x.VehicleMakeName);
         }
 
         // GET api/vehicles/searchmakes/{input}
@@ -41,7 +41,9 @@ namespace VehicleSelector.Api.Controllers
         [HttpGet("GetMake/{id:int}")]
         public async Task<VehicleMake> GetMake(int id)
         {
-            return await _vehicleMakeRepository.GetMakeAndModelsAsync(id);
+            VehicleMake make = await _vehicleMakeRepository.GetMakeAndModelsAsync(id);
+            make?.Models?.OrderBy(x => x.VehicleModelName);
+            return make;
         }
 
         // GET api/vehicles/searchmodels/{id:int}/{input}
@@ -52,6 +54,7 @@ namespace VehicleSelector.Api.Controllers
         }
 
         // POST api/vehicles/addnew
+        // NOTE: Normally this method would be behind some sort of authentication, but the spec calls for an open api.
         [HttpPost("AddNew")]
         public async Task<bool> AddNew([FromBody] NewItemDto newItem)
         {
@@ -79,10 +82,12 @@ namespace VehicleSelector.Api.Controllers
         }
 
         //DELETE api/vehicles/delete/type/id
+        // NOTE: Normally this method would be behind some sort of authentication, but the spec calls for an open api.
         [HttpDelete("Delete/{type}/{id:int}")]
         public async Task<bool> Delete(string type, int id)
         {
             int numOfChanges = 0;
+            int numOfExpectedChanges = 1;//for our VehicleMake record
             //A bit of duplicate looking code, but we want to make sure the type matches
             // a case before we do any work, and we want to make sure work has been done
             // before we save any changes.
@@ -90,10 +95,13 @@ namespace VehicleSelector.Api.Controllers
             {
                 case "make":
                     {
-                        VehicleMake delete = await _vehicleMakeRepository.GetAsync(id);
-                        if(delete != null)
+                        VehicleMake makeToDelete = await _vehicleMakeRepository.GetAsync(id);
+                        IEnumerable<VehicleModel> modelsToDelete = await _vehicleModelRepository.FindAsync(x => x.VehicleMakeId == id);
+                        if(makeToDelete != null)
                         {
-                            _vehicleMakeRepository.Remove(delete);
+                            numOfExpectedChanges += modelsToDelete.Count();
+                            _vehicleMakeRepository.Remove(makeToDelete);
+                            _vehicleModelRepository.RemoveRange(modelsToDelete);
                             numOfChanges = await _vehicleMakeRepository.SaveChangesAsync();
                         }
                         break;
@@ -103,14 +111,15 @@ namespace VehicleSelector.Api.Controllers
                         VehicleModel delete = await _vehicleModelRepository.GetAsync(id);
                         if(delete != null)
                         {
+                            numOfExpectedChanges = 1;
                             _vehicleModelRepository.Remove(delete);
                             numOfChanges = await _vehicleMakeRepository.SaveChangesAsync();
                         }
                         break;
                     }
             }
-            //we are only expecting one change
-            return numOfChanges == 1;
+            //if we delete what we expect to delete
+            return numOfChanges == numOfExpectedChanges;
         }
     }
 }
