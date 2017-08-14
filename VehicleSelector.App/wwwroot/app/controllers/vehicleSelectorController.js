@@ -251,9 +251,11 @@
             switch (type) {
                 case 'make': {
                     _selectedVehicleMakeCache = { id: id, name: name };
+                    break;
                 }
                 case 'model': {
                     _selectedVehicleModelCache = { id: id, name: name };
+                    break;
                 }
             }
             _selectionSet(type, true);
