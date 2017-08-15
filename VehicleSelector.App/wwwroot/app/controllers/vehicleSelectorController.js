@@ -153,41 +153,63 @@
                         break;
                     }
                 }
+                
             }, 500);
         };
 
-        var _handleModalInstanceResult = function (result, type, action, index) {
-            result.then(function (saveSuccess) {
-                if (saveSuccess) {
-                    var _successMsg = 'Successfully';
-                    $scope.CurrentInput = undefined;
-                    if (action === 'add') {
-                        _successMsg += ' added vehicle ' + type + '.';
-                        switch (type) {
-                            case 'make': {
-                                _loadVehicleMakes();
-                                break;
-                            }
-                            case 'model': {
-                                _loadVehicleModelsForMake(_selectedVehicleMakeCache.id);
-                                break;
-                            }
-                            case 'year': {
-                                //!!NOT YET IMPLEMENTED!!
-                                //_loadVehicleYearsForModel(modelId)
-                                break;
-                            }
+        var _insertIntoSearchArrayAlphaBetically = function (newItem) {
+            if ($scope.SearchArray.length > 0) {
+                var _searchArrayCopy = [];
+                //we are making a copy of the search array so we can 
+                //add the new item, sort the array, and find where the
+                //new items index would be alphabetically.
+                angular.copy($scope.SearchArray, _searchArrayCopy);
+                _searchArrayCopy.push(newItem);
+                //the compare function to sort the name alphabetically.
+                var _compareFn = function (a, b) {
+                    if (a.name < b.name)
+                        return -1;
+                    if (a.name > b.name)
+                        return 1;
+                    return 0;
+                };
+                //sort array
+                _searchArrayCopy.sort(_compareFn);
+                //get index of newItem
+                var _insertIndex = _searchArrayCopy.indexOf(newItem);
+                //timeout to prevent overlapping animations.
+                $timeout(function () {
+                    $scope.SearchArray.splice(_insertIndex, 0, newItem);
+                }, 500);
+            } else {
+                $scope.SearchArray.push(newItem);
+            }
+        };
+
+        var _handleModalInstanceResult = function (result, type, action, index, input) {
+            result.then(function (response) {
+                switch (action) {
+                    case 'add': {
+                        //for an add if the api returns a number other than -1 the save was successful.
+                        if (!isNaN(response) && parseInt(response) !== -1) {
+                            $scope.CurrentInput = undefined;
+                            var newItem = { id: response, name: input };
+                            _insertIntoSearchArrayAlphaBetically(newItem);
+                            $scope.Alerts.unshift({ type: 'success', msg: 'Successfully added ' + input + ' to vehicle ' + type + 's.' });
+                        } else {
+                            $scope.Alerts.unshift({ type: 'danger', msg: 'Error: Unable to add ' + input +' to vehicle ' + type + 's.' });
                         }
+                        break;
                     }
-                    else if (action === 'delete') {
-                        _removeFromSearchArrayByIndex(index);
-                        _successMsg += ' deleted vehicle ' + type + '.';
+                    case 'delete': {
+                        if (response) {
+                            _removeFromSearchArrayByIndex(index);
+                            $scope.Alerts.unshift({ type: 'success', msg: 'Successfully deleted vehicle ' + type + '.' });
+                        } else {
+                            $scope.Alerts.unshift({ type: 'danger', msg: 'Error: Unable to delete vehicle ' + type + '.' });
+                        }
+                        break;
                     }
-                    //notifiy
-                    $scope.Alerts.unshift({ type: 'success', msg: _successMsg });
-                } else {
-                    //notify
-                    $scope.Alerts.unshift({ type: 'danger', msg: 'Error: Unable to ' + action + ' vehicle ' + type + '.' });
                 }
             }, function () {
                 //do nothing. action aborted.
@@ -207,14 +229,14 @@
                     var _listWasShowing = !$scope.CollapseList;
 
                     var _type = _translateCurrentlySearchingForToType();
-
+                    var _input = $scope.CurrentInput.trim();
                     var modalInstance = $uibModal.open({
                         templateUrl: 'addNewModal.html',
                         controller: 'modalController',
                         animation: false,
                         resolve: {
                             input: function () {
-                                return $scope.CurrentInput.trim();
+                                return _input;
                             },
                             type: function () {
                                 return _type;
@@ -236,7 +258,7 @@
                         }
                     });
 
-                    _handleModalInstanceResult(modalInstance.result, _type, 'add', null);
+                    _handleModalInstanceResult(modalInstance.result, _type, 'add', null, _input);
                 }
             }
         };
@@ -267,7 +289,7 @@
 
         $scope.DeleteItem = function (id, name, index) {
             var _type = _translateCurrentlySearchingForToType();
-
+            
             var modalInstance = $uibModal.open({
                 templateUrl: 'deleteModal.html',
                 controller: 'modalController',
@@ -285,7 +307,9 @@
                 }
             });
 
-            _handleModalInstanceResult(modalInstance.result, _type, 'delete', index);
+            _handleModalInstanceResult(modalInstance.result, _type, 'delete', index, null);
+
+            
         };
 
         $scope.closeAlert = function (index) {

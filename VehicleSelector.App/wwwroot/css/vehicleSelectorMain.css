@@ -48,6 +48,17 @@
     opacity: 0;
 }
 
+#list-items li.ng-enter {
+    transition: 0.6s linear all;
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+#list-items li.ng-enter.ng-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
 #list-items li.ng-leave {
     transition: 0.6s linear all;
     opacity: 1;
@@ -57,7 +68,7 @@
 #list-items li.ng-leave.ng-leave-active {
     opacity: 0;
     transform: translateX(-100%);
-}
+    }
 
 #alert-container div.ng-enter {
     transition: 0.6s linear all;

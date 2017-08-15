@@ -10,26 +10,16 @@
     function modalController($scope, $uibModalInstance, input, type, id, vehicleService) {
 
         $scope.Add = function () {
-            var saveSuccess = false;
             var promise = vehicleService.addNew(type, input, id/*parent id*/);
-            //dont need to promise chain here, just showing I know how ;)
-            promise.then(function (success) {
-                saveSuccess = success;
-            });
-            promise.then(function () {
-                $uibModalInstance.close(saveSuccess);
+            promise.then(function (response) {
+                $uibModalInstance.close(response.data);
             });
         };
 
         $scope.Delete = function () {
-            var deleteSuccess = false;
             var promise = vehicleService.delete(type, id);
-            //dont need to promise chain here, just showing I know how ;)
             promise.then(function (success) {
-                deleteSuccess = success;
-            });
-            promise.then(function () {
-                $uibModalInstance.close(deleteSuccess);
+                $uibModalInstance.close(success);
             });
         };
 
