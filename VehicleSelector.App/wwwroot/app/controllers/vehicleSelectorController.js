@@ -224,8 +224,8 @@
                             }
                         }
                         //create promise
-                        var promise = vehicleService.addNew(_type, input, _parentId);
-                        promise.then(function (response) {
+                        var addPromise = vehicleService.addNew(_type, input, _parentId);
+                        addPromise.then(function (response) {
                             var newId = response.data;
                             //for an add if the api returns a number other than -1 the save was successful.
                             if (!isNaN(newId) && parseInt(newId) !== -1) {
@@ -246,8 +246,8 @@
                         break;
                     }
                     case 'delete': {
-                        var promise = vehicleService.delete(_type, deleteId);
-                        promise.then(function (success) {
+                        var deletePromise = vehicleService.delete(_type, deleteId);
+                        deletePromise.then(function (success) {
                             if (success) {
                                 _removeFromSearchArrayByIndex(index);
                                 $scope.Alerts.unshift({ type: 'success', msg: 'Successfully deleted vehicle ' + _type + '.' });
