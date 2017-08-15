@@ -21,6 +21,7 @@
         $scope.CurrentlySearchingFor = 'Makes';
         $scope.ListVisibility = 'Show List';
         $scope.CollapseList = true;
+        $scope.NoResults = false;
 
         //data functions
         var _mapToSearchArray = function (inputArray, arrayType) {
@@ -84,7 +85,7 @@
             $scope.CollapseList = CollapseList;
         };
 
-        var _selectionSet = function (type, fromCache) {
+        var _selectionSet = function (type, fromCache, loadModels) {
             switch (type) {
                 case 'root': {
                     //now searching for makes
@@ -108,7 +109,8 @@
                     //add new selection to breadcrumb
                     $scope.Selections.push({ 'name': _selectedVehicleMakeCache.name, 'type': 'make' });
                     //load the models for the selected make
-                    _loadVehicleModelsForMake(_selectedVehicleMakeCache.id);
+                    if (loadModels)
+                        _loadVehicleModelsForMake(_selectedVehicleMakeCache.id);
                     break;
                 }
                 case 'model': {
@@ -132,6 +134,21 @@
                 element.focus();
         };
 
+        var _selectListItem = function (item) {
+            var type = _translateCurrentlySearchingForToType();
+            switch (type) {
+                case 'make': {
+                    _selectedVehicleMakeCache = item;
+                    break;
+                }
+                case 'model': {
+                    _selectedVehicleModelCache = item;
+                    break;
+                }
+            }
+            _selectionSet(type, true, true);
+        };
+
         var _removeFromSearchArrayByIndex = function (index) {
             //the timeout is so we dont have overlapping animations
             $timeout(function () {
@@ -147,14 +164,14 @@
                         if (_selectedVehicleModelCache !== undefined) {
                             //if we remove the selected model, go back to make's model select.
                             if (removedArr[0].id === _selectedVehicleModelCache.id) {
-                                _selectionSet('make', true);
+                                $scope.Selections.splice(2, $scope.Selections.length - 2);
+                                _selectedVehicleModelCache = undefined;
                             }
                         }
                         break;
                     }
                 }
-                
-            }, 500);
+            }, 300);
         };
 
         var _insertIntoSearchArrayAlphaBetically = function (newItem) {
@@ -180,7 +197,7 @@
                 //timeout to prevent overlapping animations.
                 $timeout(function () {
                     $scope.SearchArray.splice(_insertIndex, 0, newItem);
-                }, 500);
+                }, 300);
             } else {
                 $scope.SearchArray.push(newItem);
             }
@@ -194,7 +211,10 @@
                         if (!isNaN(response) && parseInt(response) !== -1) {
                             $scope.CurrentInput = undefined;
                             var newItem = { id: response, name: input };
-                            _insertIntoSearchArrayAlphaBetically(newItem);
+                            $scope.NoResults = false;
+                            _selectListItem(newItem);
+                            if (type === 'model')
+                                _insertIntoSearchArrayAlphaBetically(newItem);
                             $scope.Alerts.unshift({ type: 'success', msg: 'Successfully added ' + input + ' to vehicle ' + type + 's.' });
                         } else {
                             $scope.Alerts.unshift({ type: 'danger', msg: 'Error: Unable to add ' + input +' to vehicle ' + type + 's.' });
@@ -219,7 +239,7 @@
 
         //scope functions
         $scope.SelectionSet = function (type) {
-            _selectionSet(type, true);
+            _selectionSet(type, true, false);
         };
 
         $scope.KeyUpEvent = function (event) {
@@ -265,22 +285,11 @@
 
         $scope.SelectEvent = function () {
             var type = _translateCurrentlySearchingForToType();
-            _selectionSet(type, false);
+            _selectionSet(type, false, true);
         };
 
         $scope.SelectItem = function (id, name) {
-            var type = _translateCurrentlySearchingForToType();
-            switch (type) {
-                case 'make': {
-                    _selectedVehicleMakeCache = { id: id, name: name };
-                    break;
-                }
-                case 'model': {
-                    _selectedVehicleModelCache = { id: id, name: name };
-                    break;
-                }
-            }
-            _selectionSet(type, true);
+            _selectListItem({ id: id, name: name });
         };
 
         $scope.SetListVisiblity = function () {
@@ -308,8 +317,6 @@
             });
 
             _handleModalInstanceResult(modalInstance.result, _type, 'delete', index, null);
-
-            
         };
 
         $scope.closeAlert = function (index) {

@@ -19,8 +19,8 @@
            ng-model="CurrentInput" ng-keyup="KeyUpEvent($event)"
            uib-typeahead="item as item.name for item in SearchArray | filter:$viewValue | limitTo:10"
            typeahead-on-select="SelectEvent()"
-           typeahead-no-results="noResults">
-    <span ng-if="noResults" class="input-group-addon">No Results: Enter To Add</span>
+           typeahead-no-results="NoResults">
+    <span ng-if="NoResults" class="input-group-addon">No Results: Enter To Add</span>
 </div>
 <hr />
 <div uib-collapse="CollapseList">
