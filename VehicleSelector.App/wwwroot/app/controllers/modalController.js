@@ -5,22 +5,16 @@
         .module('vehicleSelectorApp')
         .controller('modalController', modalController);
 
-    modalController.$inject = ['$scope', '$uibModalInstance', 'input', 'type', 'id', 'vehicleService'];
+    modalController.$inject = ['$scope', '$uibModalInstance', 'input', 'type'];
 
-    function modalController($scope, $uibModalInstance, input, type, id, vehicleService) {
+    function modalController($scope, $uibModalInstance, input, type) {
 
         $scope.Add = function () {
-            var promise = vehicleService.addNew(type, input, id/*parent id*/);
-            promise.then(function (response) {
-                $uibModalInstance.close(response.data);
-            });
+            $uibModalInstance.close('add');
         };
 
         $scope.Delete = function () {
-            var promise = vehicleService.delete(type, id);
-            promise.then(function (success) {
-                $uibModalInstance.close(success);
-            });
+            $uibModalInstance.close('delete');
         };
 
         $scope.Cancel = function () {

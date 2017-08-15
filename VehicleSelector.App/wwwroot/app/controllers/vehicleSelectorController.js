@@ -171,7 +171,7 @@
                         break;
                     }
                 }
-            }, 300);
+            }, 200);
         };
 
         var _insertIntoSearchArrayAlphaBetically = function (newItem) {
@@ -197,43 +197,67 @@
                 //timeout to prevent overlapping animations.
                 $timeout(function () {
                     $scope.SearchArray.splice(_insertIndex, 0, newItem);
-                }, 300);
+                }, 200);
             } else {
                 $scope.SearchArray.push(newItem);
             }
         };
 
-        var _handleModalInstanceResult = function (result, type, action, index, input) {
-            result.then(function (response) {
+        var _handleModalResponse = function (response, input, index, deleteId) {
+            response.then(function (action) {
+                var _type = _translateCurrentlySearchingForToType();
+                //the action is what the user decided to click in the modal.
                 switch (action) {
                     case 'add': {
-                        //for an add if the api returns a number other than -1 the save was successful.
-                        if (!isNaN(response) && parseInt(response) !== -1) {
-                            $scope.CurrentInput = undefined;
-                            var newItem = { id: response, name: input };
-                            $scope.NoResults = false;
-                            _selectListItem(newItem);
-                            if (type === 'model')
-                                _insertIntoSearchArrayAlphaBetically(newItem);
-                            $scope.Alerts.unshift({ type: 'success', msg: 'Successfully added ' + input + ' to vehicle ' + type + 's.' });
-                        } else {
-                            $scope.Alerts.unshift({ type: 'danger', msg: 'Error: Unable to add ' + input +' to vehicle ' + type + 's.' });
+                        //get values to add
+                        //parent id will be -1 if type is make
+                        var _parentId = -1;
+                        switch (_type) {
+                            case 'model': {
+                                _parentId = _selectedVehicleMakeCache.id;
+                                break;
+                            }
+                            case 'year': {
+                                //!!NOT YET IMPLEMENTED!!
+                                _parentId = _selectedVehicleModelCache.id;
+                                break;
+                            }
                         }
+                        //create promise
+                        var promise = vehicleService.addNew(_type, input, _parentId);
+                        promise.then(function (response) {
+                            var newId = response.data;
+                            //for an add if the api returns a number other than -1 the save was successful.
+                            if (!isNaN(newId) && parseInt(newId) !== -1) {
+                                //clear search criteria
+                                $scope.NoResults = false;
+                                $scope.CurrentInput = undefined;
+                                var newItem = { id: newId, name: input };
+                                //make new item the selection.
+                                _selectListItem(newItem);
+                                //if model insert with animation, if no a new list will be loaded so the animation is not necessary.
+                                if (_type === 'model')
+                                    _insertIntoSearchArrayAlphaBetically(newItem);
+                                $scope.Alerts.unshift({ type: 'success', msg: 'Successfully added ' + input + ' to vehicle ' + _type + 's.' });
+                            } else {
+                                $scope.Alerts.unshift({ type: 'danger', msg: 'Error: Unable to add ' + input + ' to vehicle ' + _type + 's.' });
+                            }
+                        });
                         break;
                     }
                     case 'delete': {
-                        if (response) {
-                            _removeFromSearchArrayByIndex(index);
-                            $scope.Alerts.unshift({ type: 'success', msg: 'Successfully deleted vehicle ' + type + '.' });
-                        } else {
-                            $scope.Alerts.unshift({ type: 'danger', msg: 'Error: Unable to delete vehicle ' + type + '.' });
-                        }
+                        var promise = vehicleService.delete(_type, deleteId);
+                        promise.then(function (success) {
+                            if (success) {
+                                _removeFromSearchArrayByIndex(index);
+                                $scope.Alerts.unshift({ type: 'success', msg: 'Successfully deleted vehicle ' + _type + '.' });
+                            } else {
+                                $scope.Alerts.unshift({ type: 'danger', msg: 'Error: Unable to delete vehicle ' + _type + '.' });
+                            }
+                        });
                         break;
                     }
                 }
-            }, function () {
-                //do nothing. action aborted.
-                //console.log('modal dismissed.');
             });
         };
 
@@ -246,8 +270,6 @@
             if ((event.key === 'Enter' || event.keyCode === 13/*Enter*/) && typeof $scope.CurrentInput === 'string') {
                 //modal => 'are you sure you want to add "blah" to the list of makes'
                 if ($scope.CurrentInput.trim() !== '') {
-                    var _listWasShowing = !$scope.CollapseList;
-
                     var _type = _translateCurrentlySearchingForToType();
                     var _input = $scope.CurrentInput.trim();
                     var modalInstance = $uibModal.open({
@@ -260,25 +282,11 @@
                             },
                             type: function () {
                                 return _type;
-                            },
-                            id: function () {  //aka parent id
-                                switch (_type) {
-                                    case 'make': {
-                                        return -1;//param not used when adding a make
-                                    }
-                                    case 'model': {
-                                        return _selectedVehicleMakeCache.id;
-                                    }
-                                    case 'year': {
-                                        //!!NOT YET IMPLEMENTED!!
-                                        return _selectedVehicleModelCache.id;
-                                    }
-                                }
                             }
                         }
                     });
 
-                    _handleModalInstanceResult(modalInstance.result, _type, 'add', null, _input);
+                    _handleModalResponse(modalInstance.result, _input, null, null);
                 }
             }
         };
@@ -309,14 +317,11 @@
                     },
                     type: function () {
                         return _type;
-                    },
-                    id: function () {
-                        return id;
                     }
                 }
             });
 
-            _handleModalInstanceResult(modalInstance.result, _type, 'delete', index, null);
+            _handleModalResponse(modalInstance.result, null, index, id);
         };
 
         $scope.closeAlert = function (index) {
