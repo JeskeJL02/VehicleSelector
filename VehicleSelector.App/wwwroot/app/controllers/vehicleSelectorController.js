@@ -23,9 +23,18 @@
         $scope.CollapseList = true;
         $scope.NoResults = false;
 
+        //the compare function to sort the name alphabetically.
+        var _compareFn = function (a, b) {
+            if (a.name < b.name)
+                return -1;
+            if (a.name > b.name)
+                return 1;
+            return 0;
+        };
+
         //data functions
-        var _mapToSearchArray = function (inputArray, arrayType) {
-            $scope.SearchArray = inputArray.map(function (obj) {
+        var _mapArray = function (inputArray, arrayType) {
+            return inputArray.map(function (obj) {
                 switch (arrayType) {
                     case 'make': {
                         return { 'id': obj.vehicleMakeId, 'name': obj.vehicleMakeName };
@@ -37,11 +46,17 @@
             });
         };
 
-        var _loadVehicleMakes = function () {
+        var _mapToSearchArray = function (inputArray, arrayType) {
+            var _mappedArray = _mapArray(inputArray, arrayType);
+            $scope.SearchArray = _mappedArray.sort(_compareFn);
+        };
+
+        var _loadVehicleMakes = function (cacheOnly) {
             var promise = vehicleService.getAllVehicleMakes();
             promise.then(function (response) {
                 _vehicleMakeCache = response.data;
-                _mapToSearchArray(response.data, 'make');
+                if (!cacheOnly)
+                    _mapToSearchArray(response.data, 'make');
             }, function () {
                 $scope.Alerts.unshift({ type: 'danger', msg: 'Error: Unable to retrieve all vehicle makes.' });
             });
@@ -174,32 +189,26 @@
             }, 200);
         };
 
-        var _insertIntoSearchArrayAlphaBetically = function (newItem) {
+        var _insertIntoSearchArrayAlphabetically = function (newItem) {
             if ($scope.SearchArray.length > 0) {
-                var _searchArrayCopy = [];
+                var _arrayCopy = [];
                 //we are making a copy of the search array so we can 
                 //add the new item, sort the array, and find where the
                 //new items index would be alphabetically.
-                angular.copy($scope.SearchArray, _searchArrayCopy);
-                _searchArrayCopy.push(newItem);
-                //the compare function to sort the name alphabetically.
-                var _compareFn = function (a, b) {
-                    if (a.name < b.name)
-                        return -1;
-                    if (a.name > b.name)
-                        return 1;
-                    return 0;
-                };
+                angular.copy($scope.SearchArray, _arrayCopy);
+                _arrayCopy.push(newItem);
                 //sort array
-                _searchArrayCopy.sort(_compareFn);
+                _arrayCopy.sort(_compareFn);
                 //get index of newItem
-                var _insertIndex = _searchArrayCopy.indexOf(newItem);
+                var _insertIndex = _arrayCopy.indexOf(newItem);
                 //timeout to prevent overlapping animations.
                 $timeout(function () {
                     $scope.SearchArray.splice(_insertIndex, 0, newItem);
                 }, 200);
             } else {
-                $scope.SearchArray.push(newItem);
+                $timeout(function () {
+                    $scope.SearchArray.push(newItem);
+                }, 200);
             }
         };
 
@@ -236,8 +245,20 @@
                                 //make new item the selection.
                                 _selectListItem(newItem);
                                 //if model insert with animation, if no a new list will be loaded so the animation is not necessary.
-                                if (_type === 'model')
-                                    _insertIntoSearchArrayAlphaBetically(newItem);
+                                switch (_type) {
+                                    case 'model': {
+                                        _insertIntoSearchArrayAlphabetically(newItem, $scope.SearchArray, _type);
+                                        break;
+                                    }
+                                    case 'make': {
+                                        _vehicleMakeCache.push({ vehicleMakeId: newId, vehicleMakeName: input, models: null });
+                                        break;
+                                    }
+                                    case 'year': {
+                                        //!!NOT YET IMPLEMENTED!!
+                                        break;
+                                    }
+                                }
                                 $scope.Alerts.unshift({ type: 'success', msg: 'Successfully added ' + input + ' to vehicle ' + _type + 's.' });
                             } else {
                                 $scope.Alerts.unshift({ type: 'danger', msg: 'Error: Unable to add ' + input + ' to vehicle ' + _type + 's.' });
@@ -249,6 +270,9 @@
                         var deletePromise = vehicleService.delete(_type, deleteId);
                         deletePromise.then(function (success) {
                             if (success) {
+                                if (_type === 'make') {
+                                    _loadVehicleMakes(true);
+                                } 
                                 _removeFromSearchArrayByIndex(index);
                                 $scope.Alerts.unshift({ type: 'success', msg: 'Successfully deleted vehicle ' + _type + '.' });
                             } else {
@@ -331,7 +355,7 @@
         //init function
         var _init = function () {
             //populate the vehicle make cache
-            _loadVehicleMakes();
+            _loadVehicleMakes(false);
             //Create the root selection object and push it to the selection array.
             //This will never be removed and the user can click on 'All Makes' to start
             //the selection process over.
