@@ -42,7 +42,13 @@ namespace VehicleSelector.Api.Controllers
         public async Task<VehicleMake> GetMake(int id)
         {
             VehicleMake make = await _vehicleMakeRepository.GetMakeAndModelsAsync(id);
-            make?.Models?.OrderBy(x => x.VehicleModelName);
+            if(make?.Models != null && make.Models.Count > 1)
+            {
+                //There is no way to sort the included models with entity framework unfortunately, 
+                //so we have to resort to this.
+                IEnumerable<VehicleModel> sortedModels = make.Models.AsEnumerable().OrderBy(x => x.VehicleModelName);
+                make.Models = sortedModels.ToList();
+            }
             return make;
         }
 
@@ -56,9 +62,9 @@ namespace VehicleSelector.Api.Controllers
         // POST api/vehicles/addnew
         // NOTE: Normally this method would be behind some sort of authentication, but the spec calls for an open api.
         [HttpPost("AddNew")]
-        public async Task<bool> AddNew([FromBody] NewItemDto newItem)
+        public async Task<int> AddNew([FromBody] NewItemDto newItem)
         {
-            int numOfChanges = 0;
+            int newItemId = -1;
             //A bit of duplicate looking code, but we want to make sure the type matches
             // a case before we do any work, and we want to make sure work has been done
             // before we save any changes.
@@ -66,19 +72,23 @@ namespace VehicleSelector.Api.Controllers
             {
                 case "make":
                     {
-                        await _vehicleMakeRepository.AddAsync(new VehicleMake { VehicleMakeName = newItem.ItemValue });
-                        numOfChanges = await _vehicleMakeRepository.SaveChangesAsync();
+                        VehicleMake makeToAdd = new VehicleMake { VehicleMakeName = newItem.ItemValue };
+                        await _vehicleMakeRepository.AddAsync(makeToAdd);
+                        await _vehicleMakeRepository.SaveChangesAsync();
+                        newItemId = makeToAdd.VehicleMakeId;
                         break;
                     }
                 case "model":
                     {
-                        await _vehicleModelRepository.AddAsync(new VehicleModel { VehicleModelName = newItem.ItemValue, VehicleMakeId = newItem.ItemParentId });
-                        numOfChanges = await _vehicleMakeRepository.SaveChangesAsync();
+                        VehicleModel modelToAdd = new VehicleModel { VehicleModelName = newItem.ItemValue, VehicleMakeId = newItem.ItemParentId };
+                        await _vehicleModelRepository.AddAsync(modelToAdd);
+                        await _vehicleMakeRepository.SaveChangesAsync();
+                        newItemId = modelToAdd.VehicleModelId;
                         break;
                     }
             }
             //we are only expecting one change
-            return numOfChanges == 1;
+            return newItemId;
         }
 
         //DELETE api/vehicles/delete/type/id
